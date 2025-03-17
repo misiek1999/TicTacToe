@@ -22,9 +22,9 @@ add_compile_definitions(SPDLOG_ACTIVE_LEVEL=SPDLOG_LEVEL_TRACE)
 file(GLOB HEADERS "*.h" "*.hpp")
 file(GLOB SOURCES "*.c" "*.cpp")
 
-add_library(logLib STATIC ${SOURCES} ${HEADERS})
+add_library(LogLib STATIC ${SOURCES} ${HEADERS})
 
-target_include_directories(logLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(LogLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Link spdlog to your target.
-target_link_libraries(logLib PUBLIC spdlog::spdlog)
+target_link_libraries(LogLib PUBLIC spdlog::spdlog)
