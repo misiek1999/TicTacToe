@@ -18,13 +18,13 @@ namespace Board {
     };
 
     // Convert player type to board field
-    constexpr BoardField convertPlayerTypeToBoardField(PlayerType player) {
+    constexpr BoardField convertPlayerTypeToBoardField(BoardPlayerType player) {
         auto boardField = BoardField::EMPTY;
         switch (player) {
-        case PlayerType::X:
+        case BoardPlayerType::X:
             boardField = BoardField::X;
             break;
-        case PlayerType::O:
+        case BoardPlayerType::O:
             boardField = BoardField::O;
             break;
         default:
@@ -49,9 +49,9 @@ namespace Board {
         virtual ~IBoard() = default;
         virtual BoardType get_board() const = 0;
         virtual bool is_full() const = 0;
-        virtual bool is_winner(PlayerType player) const = 0;
+        virtual bool is_winner(BoardPlayerType player) const = 0;
         virtual bool is_valid_move(int row, int col) const = 0;
-        virtual std::expected<bool, BoardError> make_move(int row, int col, PlayerType player) = 0;
+        virtual std::expected<bool, BoardError> make_move(int row, int col, BoardPlayerType player) = 0;
         virtual void reset() = 0;
 
     };
@@ -73,7 +73,7 @@ namespace Board {
             return board_impl_->is_full();
         }
 
-        bool is_winner(PlayerType player) const {
+        bool is_winner(BoardPlayerType player) const {
             return board_impl_->is_winner(player);
         }
 
@@ -81,7 +81,7 @@ namespace Board {
             return board_impl_->is_valid_move(row, col);
         }
 
-        std::expected<bool, BoardError> make_move(int row, int col, PlayerType player) {
+        std::expected<bool, BoardError> make_move(int row, int col, BoardPlayerType player) {
             return board_impl_->make_move(row, col, player);
         }
 

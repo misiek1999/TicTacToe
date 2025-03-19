@@ -24,7 +24,7 @@ public:
         });
     }
 
-    bool is_winner(PlayerType player) const override {
+    bool is_winner(BoardPlayerType player) const override {
         const auto board_player = convertPlayerTypeToBoardField(player);
         for (size_t i = 0; i < kBoardSize; ++i) {
             if (board_[i][0] == board_player && board_[i][1] == board_player && board_[i][2] == board_player) {
@@ -50,7 +50,7 @@ public:
         return board_[row][col] == BoardField::EMPTY;
     }
 
-    std::expected<bool, BoardError> make_move(int row, int col, PlayerType player) override {
+    std::expected<bool, BoardError> make_move(int row, int col, BoardPlayerType player) override {
         if (!is_valid_move(row, col)) {
             return std::unexpected(BoardError::INVALID_MOVE);
         }

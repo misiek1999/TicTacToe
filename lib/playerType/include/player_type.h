@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-enum class PlayerType : uint8_t {
+enum class BoardPlayerType : uint8_t {
     X = 0,
     O = 1
 };
