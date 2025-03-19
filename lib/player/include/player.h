@@ -8,14 +8,20 @@
 
 namespace Player {
 
-    class IPlayer {
-    public:
-        IPlayer(BoardPlayerType player_type) : player_type_(player_type) {}
-        virtual ~IPlayer() = default;
-        virtual BoardPlayerType get_player_type() const = 0;
-        virtual std::pair<int, int> get_move(const Board::Board &board) = 0;
-    private:
-        [[maybe_unused]] BoardPlayerType player_type_; // TODO: add usage
-    };
+using PlayerReadyCallback = std::function<void()>;
+using PlayerReadyCallbackId = size_t;
+
+class IPlayer {
+public:
+    IPlayer(BoardPlayerType player_type) : player_type_(player_type) {}
+    virtual ~IPlayer() = default;
+    virtual BoardPlayerType get_player_type() const = 0;
+    virtual std::pair<int, int> get_move(const Board::Board &board) = 0;
+    virtual PlayerReadyCallbackId registerPlayerReadyCallback(PlayerReadyCallback callback) = 0;
+    virtual void unregisterPlayerReadyCallback(PlayerReadyCallbackId playerReadyCallbackId) = 0;
+    BoardPlayerType get_player_type() { return player_type_; }
+private:
+    BoardPlayerType player_type_;
+};
 
 }
