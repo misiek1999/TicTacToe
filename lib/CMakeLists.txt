@@ -1,4 +1,5 @@
 add_subdirectory(board)
 add_subdirectory(log)
 add_subdirectory(player)
-add_subdirectory(playerType)
+add_subdirectory(player_manager)
+add_subdirectory(player_type)
