@@ -10,6 +10,9 @@ public:
         this->reset();
     }
 
+    explicit BoardImpl(const BoardType& board): board_(board) {
+    }
+
     ~BoardImpl() = default;
 
     BoardType get_board() const override{
@@ -72,6 +75,9 @@ private:
 
 // This constructor needs to be defined in the .cpp file after Implementation of the BoardImpl class, due to the unique_ptr initizalization
 Board::Board() : board_impl_(std::make_unique<BoardImpl>()) {
+}
+
+Board::Board(const BoardType& board) : board_impl_(std::make_unique<BoardImpl>(board)) {
 }
 
 } // namespace Board

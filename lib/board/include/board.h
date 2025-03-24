@@ -63,6 +63,7 @@ namespace Board {
     class Board{
     public:
         Board();
+        explicit Board(const BoardType& board);
         ~Board() = default;
 
         BoardType get_board() const {
