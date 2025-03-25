@@ -15,7 +15,6 @@ class IPlayer {
 public:
     IPlayer(BoardPlayerType player_type) : player_type_(player_type) {}
     virtual ~IPlayer() = default;
-    virtual BoardPlayerType get_player_type() const = 0;
     virtual std::pair<int, int> get_move(const Board::Board &board) = 0;
     virtual PlayerReadyCallbackId registerPlayerReadyCallback(PlayerReadyCallback callback) = 0;
     virtual void unregisterPlayerReadyCallback(PlayerReadyCallbackId playerReadyCallbackId) = 0;
