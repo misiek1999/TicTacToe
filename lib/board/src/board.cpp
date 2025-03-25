@@ -58,7 +58,7 @@ public:
             return std::unexpected(BoardError::INVALID_MOVE);
         }
         const auto board_player = convertPlayerTypeToBoardField(player);
-        if (board_player != BoardField::EMPTY) {
+        if (board_player == BoardField::EMPTY) {
             return std::unexpected(BoardError::INVALID_PLAYER);
         }
         board_[row][col] = board_player;
