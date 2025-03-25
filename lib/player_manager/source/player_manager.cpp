@@ -12,9 +12,9 @@ public:
             type_(type) {
         LOG_D("Selected type of guest player: {}", static_cast<int>(type));
         // TODO: Implement player creation based on type
-        std::shared_ptr<Player::IPlayer> host_client = std::make_shared<Player::PlayerBot>(BoardPlayerType::X);
+        host_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::X);
         LOG_V("Host player created");
-        std::shared_ptr<Player::IPlayer> guest_client = std::make_shared<Player::PlayerBot>(BoardPlayerType::O);
+        guest_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::O);
         LOG_V("Guest player created");
     }
 
