@@ -21,7 +21,9 @@ public:
 
     std::pair<int, int> get_move(const Board::Board &board) override {
         std::ignore = board;
-        return {distrib(gen_), distrib(gen_)};
+        const auto move = std::make_pair<int,int>(distrib(gen_), distrib(gen_));
+        LOG_D("Player {} move: row: {}, col: {}", static_cast<int>(get_player_type()), move.first, move.second);
+        return  move;
     };
 
 private:
