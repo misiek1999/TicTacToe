@@ -1,0 +1,24 @@
+#pragma once
+
+#include <utility>
+
+#include "player_interface.h"
+
+namespace Player {
+
+class PlayerBotImpl;
+
+class PlayerBot : public IPlayer {
+public:
+    explicit PlayerBot(BoardPlayerType player_type);
+    ~PlayerBot() = default;
+
+    std::pair<int, int> get_move(const Board::Board &board) override {
+        return impl_->get_move(board);
+    }
+
+private:
+    std::unique_ptr<IPlayer> impl_;
+};
+
+}
