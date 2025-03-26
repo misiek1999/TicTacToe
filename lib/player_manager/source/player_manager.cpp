@@ -2,20 +2,31 @@
 #include "log.h"
 #include "player_bot.h"
 #include <unordered_map>
+#include <exception>
 
 namespace PlayerManager
 {
 
 class PlayerManagerImpl : public IPlayerManager {
 public:
+    PlayerManagerImpl(TypeOfGuestPlayer type, std::shared_ptr<Player::IPlayer> host):
+            type_(type) {
+        LOG_D("Selected type of guest player: {}", static_cast<int>(type));
+        if (host == nullptr) {
+            LOG_E("Host player is nullptr");
+            std::terminate();
+        }
+        host_client_ = host;
+        LOG_V("Host player created");
+        getGuestPlayer(type);
+    }
+
     explicit PlayerManagerImpl(TypeOfGuestPlayer type):
             type_(type) {
         LOG_D("Selected type of guest player: {}", static_cast<int>(type));
-        // TODO: Implement player creation based on type
         host_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::X);
         LOG_V("Host player created");
-        guest_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::O);
-        LOG_V("Guest player created");
+        getGuestPlayer(type);
     }
 
     std::shared_ptr<Player::IPlayer> getHostClient() override {
@@ -36,6 +47,12 @@ private:
     std::shared_ptr<Player::IPlayer> host_client_;
     std::shared_ptr<Player::IPlayer> guest_client_;
 
+    void getGuestPlayer(TypeOfGuestPlayer type) {
+        std::ignore = type;
+        // TODO: Implement player creation based on type
+        guest_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::O);
+        LOG_V("Guest player created");
+    }
 };
 
 
@@ -43,4 +60,7 @@ PlayerManager::PlayerManager(TypeOfGuestPlayer type):
     impl_(std::make_unique<PlayerManagerImpl>(type)) {
 }
 
+PlayerManager::PlayerManager(TypeOfGuestPlayer type, std::shared_ptr<Player::IPlayer> host):
+    impl_(std::make_unique<PlayerManagerImpl>(type, host)) {
+}
 } // namespace Player

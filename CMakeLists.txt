@@ -9,10 +9,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g -O0")
 set(INCLUDE_DIR include)
 include_directories(${INCLUDE_DIR})
 
-file(GLOB_RECURSE SOURCES "src/*.cpp")
+file(GLOB_RECURSE SOURCES "source/*.cpp")
 
 add_subdirectory(lib)
 
 add_executable(tictactoe ${SOURCES})
 
-target_link_libraries(tictactoe PRIVATE LogLib GameManagerLib PlayerBotLib PlayerManagerLib PlayerTypeLib BoardLib)
+target_link_libraries(tictactoe PRIVATE LogLib GameManagerLib UserInterfaceLib)

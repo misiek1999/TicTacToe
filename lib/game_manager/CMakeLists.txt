@@ -11,6 +11,7 @@ set(INCLUDE_DIR include)
 target_include_directories(GameManagerLib PUBLIC ${INCLUDE_DIR})
 
 target_link_libraries(GameManagerLib PUBLIC PlayerManagerLib
+                                            PlayerLib
                                             GameEngineLib
                                             BoardLib
                                             LogLib)

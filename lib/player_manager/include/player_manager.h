@@ -25,6 +25,7 @@ class PlayerManagerImpl;
 
 class PlayerManager : public IPlayerManager {
 public:
+    PlayerManager(TypeOfGuestPlayer type, std::shared_ptr<Player::IPlayer> host);
     explicit PlayerManager(TypeOfGuestPlayer type);
     ~PlayerManager() = default;
     // Get host and guest clients instances

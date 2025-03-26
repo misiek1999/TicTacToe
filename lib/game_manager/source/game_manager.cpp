@@ -18,8 +18,8 @@ private:
     mutable std::mutex game_thread_mutex_;
 
 public:
-    GameManagerImpl() {
-        createPlayerManager();
+    explicit GameManagerImpl(std::shared_ptr<Player::IPlayer> host_player = nullptr) {
+        createPlayerManager(host_player);
         createGameEngine();
         LOG_D("Game manager created");
     }
@@ -48,16 +48,26 @@ public:
         return game_engine_->getScore();
     }
 
+    size_t getRound() const override {
+        return round_counter_;
+    }
+
 private:
 
     std::shared_ptr<PlayerManager::PlayerManager> player_manager_;
     std::unique_ptr<GameEngine::GameEngine> game_engine_;
 
+    size_t round_counter_ = 0;
+
     std::thread game_thread_;
     std::atomic<bool> game_thread_stopped_ = false;
 
-    void createPlayerManager() {
-        player_manager_ = std::make_shared<PlayerManager::PlayerManager>(PlayerManager::TypeOfGuestPlayer::Bot);
+    void createPlayerManager(std::shared_ptr<Player::IPlayer> host_player) {
+        if (host_player) {
+            player_manager_ = std::make_shared<PlayerManager::PlayerManager>(PlayerManager::TypeOfGuestPlayer::Bot, host_player);
+        } else {
+            player_manager_ = std::make_shared<PlayerManager::PlayerManager>(PlayerManager::TypeOfGuestPlayer::Bot);
+        }
         if (!player_manager_) {
             LOG_E("Player manager creation failed");
             std::exit(EXIT_FAILURE);
@@ -90,6 +100,7 @@ private:
             if (game_process_resolutes == GameEngine::GameEngineError::kGameFinished) {
                 LOG_D("Game finished. Resoluts: Host: {}, Guest: {}", game_engine_->getScore().first, game_engine_->getScore().second);
                 game_engine_->resetGame();
+                ++round_counter_;
             }
             lock.unlock();
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -98,5 +109,7 @@ private:
 };
 
 GameManager::GameManager() : impl_(std::make_unique<GameManagerImpl>()) {}
+
+GameManager::GameManager(std::shared_ptr<Player::IPlayer> player) : impl_(std::make_unique<GameManagerImpl>(player)) {}
 
 } // namespace GameManager
