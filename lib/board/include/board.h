@@ -33,6 +33,21 @@ namespace Board {
         return boardField;
     }
 
+    constexpr char convertBoardFieldToChar(BoardField field) {
+        char c = ' ';
+        switch (field) {
+        case BoardField::X:
+            c = 'X';
+            break;
+        case BoardField::O:
+            c = 'O';
+            break;
+        default:
+            break;
+        }
+        return c;
+    }
+
     // Type of the board
     using BoardType = std::array<std::array<BoardField, kBoardSize>, kBoardSize>;
 
