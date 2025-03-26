@@ -1,5 +1,8 @@
 add_subdirectory(board)
+add_subdirectory(game_engine)
+add_subdirectory(game_manager)
 add_subdirectory(log)
+add_subdirectory(player_bot)
 add_subdirectory(player_interface)
 add_subdirectory(player_manager)
 add_subdirectory(player_type)

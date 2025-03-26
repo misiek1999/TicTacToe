@@ -15,4 +15,4 @@ add_subdirectory(lib)
 
 add_executable(tictactoe ${SOURCES})
 
-target_link_libraries(tictactoe PRIVATE LogLib)
+target_link_libraries(tictactoe PRIVATE LogLib GameManagerLib PlayerBotLib PlayerManagerLib PlayerTypeLib BoardLib)

@@ -1,6 +1,7 @@
 #include "board.h"
 #include <ranges>
 #include <algorithm>
+#include <iostream>
 
 namespace Board {
 
@@ -20,10 +21,8 @@ public:
     }
 
     bool is_full() const override {
-        return not std::ranges::any_of(board_, [](const auto& row) {
-            return std::ranges::any_of(row, [](const auto& field) {
-                return field == BoardField::EMPTY;
-            });
+        return std::ranges::none_of(board_ | std::views::join, [](const auto field) {
+            return field == BoardField::EMPTY;
         });
     }
 
@@ -62,13 +61,34 @@ public:
             return std::unexpected(BoardError::INVALID_PLAYER);
         }
         board_[row][col] = board_player;
-        return true;
+        print_board();
+        return true;    // This patern was used for fun, in that case customer error code struct will be better
     }
 
     void reset() override {
         auto flat_view = board_ | std::views::join;
         std::ranges::fill(flat_view, BoardField::EMPTY);
     }
+
+    void print_board() const {
+        for (const auto& row : board_) {
+            for (const auto& field : row) {
+                switch (field) {
+                case BoardField::EMPTY:
+                    std::cout << " ";
+                    break;
+                case BoardField::X:
+                    std::cout << "X";
+                    break;
+                case BoardField::O:
+                    std::cout << "O";
+                    break;
+                }
+            }
+            std::cout << std::endl;
+        }
+    }
+
 private:
     BoardType board_;
 };
