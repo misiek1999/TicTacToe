@@ -57,7 +57,7 @@ private:
     void pause() {
         std::cout << "Press any key to continue...";
         #ifdef _WIN32
-        getch();
+        _getch();
         #else
         std::cin.get();
         #endif
@@ -79,7 +79,7 @@ private:
         std::cout << "\nDo you want to exit? ESC - Quit\n";
 
         #ifdef _WIN32
-        if (GetAsyncKeyState(VK_ESCAPE) {
+        if (GetAsyncKeyState(VK_ESCAPE)) {
         #else
         // Implement alternative escape detection for other platforms
         #endif
@@ -108,4 +108,4 @@ UserInterface::UserInterface():
     impl_(std::make_unique<UserInterfaceImpl>()) {
 }
 
-} // namespace GameManager
+} // namespace UI
