@@ -51,7 +51,7 @@ private:
         std::ignore = type;
         // TODO: Implement player creation based on type
         guest_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::O);
-        LOG_V("Guest player created");
+        LOG_V("Guest player created, type: {}", static_cast<int>(type_));
     }
 };
 
