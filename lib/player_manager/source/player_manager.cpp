@@ -18,7 +18,7 @@ public:
         }
         host_client_ = host;
         LOG_V("Host player created");
-        getGuestPlayer(type);
+        createGuestPlayer(type);
     }
 
     explicit PlayerManagerImpl(TypeOfGuestPlayer type):
@@ -26,7 +26,7 @@ public:
         LOG_D("Selected type of guest player: {}", static_cast<int>(type));
         host_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::X);
         LOG_V("Host player created");
-        getGuestPlayer(type);
+        createGuestPlayer(type);
     }
 
     std::shared_ptr<Player::IPlayer> getHostClient() override {
@@ -47,7 +47,7 @@ private:
     std::shared_ptr<Player::IPlayer> host_client_;
     std::shared_ptr<Player::IPlayer> guest_client_;
 
-    void getGuestPlayer(TypeOfGuestPlayer type) {
+    void createGuestPlayer(TypeOfGuestPlayer type) {
         std::ignore = type;
         // TODO: Implement player creation based on type
         guest_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::O);
