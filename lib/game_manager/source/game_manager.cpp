@@ -53,7 +53,6 @@ public:
     }
 
 private:
-
     std::shared_ptr<PlayerManager::PlayerManager> player_manager_;
     std::unique_ptr<GameEngine::GameEngine> game_engine_;
 
@@ -63,22 +62,23 @@ private:
     std::atomic<bool> game_thread_stopped_ = false;
 
     void createPlayerManager(std::shared_ptr<Player::IPlayer> host_player) {
-        if (host_player) {
+        if (host_player != nullptr) {
             player_manager_ = std::make_shared<PlayerManager::PlayerManager>(PlayerManager::TypeOfGuestPlayer::Bot, host_player);
         } else {
+            LOG_D("Creating player manager with bot player");
             player_manager_ = std::make_shared<PlayerManager::PlayerManager>(PlayerManager::TypeOfGuestPlayer::Bot);
         }
-        if (!player_manager_) {
+        if (player_manager_ == nullptr) {
             LOG_E("Player manager creation failed");
-            std::exit(EXIT_FAILURE);
+            throw std::runtime_error("Player manager creation failed");
         }
         if (player_manager_->getGuestClient() == nullptr) {
             LOG_E("Guest player creation failed");
-            std::exit(EXIT_FAILURE);
+            throw std::runtime_error("Guest player creation failed");
         }
         if (player_manager_->getHostClient() == nullptr) {
             LOG_E("Host player creation failed");
-            std::exit(EXIT_FAILURE);
+            throw std::runtime_error("Host player creation failed");
         }
         LOG_D("Player manager created successfully");
     }
