@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "log.h"
+#include "game_result_type.h"
 #include "player_type.h"
 #include "board.h"
 

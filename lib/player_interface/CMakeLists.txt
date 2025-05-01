@@ -11,4 +11,5 @@ target_include_directories(PlayerLib PUBLIC ${INCLUDE_DIR})
 
 target_link_libraries(PlayerLib PUBLIC PlayerTypeLib
                                        BoardLib
+                                       GameTypesLib
                                        LogLib)

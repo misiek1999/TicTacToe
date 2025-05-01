@@ -12,4 +12,5 @@ target_include_directories(PlayerManagerLib PUBLIC ${INCLUDE_DIR})
 
 target_link_libraries(PlayerManagerLib PUBLIC PlayerLib
                                               PlayerBotLib
+                                              GameTypesLib
                                               LogLib)

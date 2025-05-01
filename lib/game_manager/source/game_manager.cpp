@@ -1,6 +1,7 @@
 #include "game_manager.h"
 
 #include "game_engine.h"
+#include "game_result_type.h"
 #include "player_manager.h"
 #include "log.h"
 
