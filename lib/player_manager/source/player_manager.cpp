@@ -14,7 +14,7 @@ public:
         LOG_D("Selected type of guest player: {}", static_cast<int>(type));
         if (host == nullptr) {
             LOG_E("Host player is nullptr");
-            std::terminate();
+            throw std::runtime_error("Host player is nullptr");
         }
         host_client_ = host;
         LOG_V("Host player created");
