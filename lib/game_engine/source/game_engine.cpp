@@ -16,7 +16,7 @@ public:
     GameEngineError processGame() override {
         auto return_code = GameEngineError::kOK;
         if (is_game_finished_) {
-            LOG_W("Game is finished");
+            LOG_W("Game is finished. Please reset the game.");
             return GameEngineError::KBoardNotClear;
         }
 
