@@ -35,12 +35,12 @@ public:
     }
 
     void startGame() override {
-        LOG_D("Starting game");
+        LOG_D("Game Manager starting game");
         game_thread_ = std::thread(&GameManagerImpl::gameThraedLoop, this);
     }
 
     void stopGame() override {
-        LOG_D("Stopping game");
+        LOG_D("Game Manager stopping game");
         game_thread_stopped_ = true;
     }
 
