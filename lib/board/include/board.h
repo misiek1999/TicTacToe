@@ -3,6 +3,7 @@
 #include <array>
 #include <expected>
 #include <memory>
+#include <utility>
 
 #include "player_type.h"
 
@@ -47,6 +48,9 @@ namespace Board {
         }
         return c;
     }
+
+    // Constant for invalid move
+    constexpr std::pair<int, int> kInvalidMove = {-1, -1};
 
     // Type of the board
     using BoardType = std::array<std::array<BoardField, kBoardSize>, kBoardSize>;
