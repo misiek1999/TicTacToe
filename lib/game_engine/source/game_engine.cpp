@@ -70,8 +70,6 @@ public:
     void resetGame() override {
         LOG_I("Resetting game engine");
         board_.reset();
-        host_player_score_ = 0;
-        guest_player_score_ = 0;
         is_host_turn_ = true;
         is_game_finished_ = false;
     }
