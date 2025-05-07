@@ -41,6 +41,15 @@ public:
         return type_;
     }
 
+    void notifyPlayersRoundEnd(RoundResult result,
+                               std::pair<int, int> score,
+                               size_t round,
+                               const Board::BoardType &board) override {
+        host_client_->notifyRoundEnd(result, score, round, board);
+        guest_client_->notifyRoundEnd(result, score, round, board);
+        LOG_V("Notified players about round end");
+    }
+
 private:
     TypeOfGuestPlayer type_;
 

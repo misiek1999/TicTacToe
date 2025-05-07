@@ -17,6 +17,10 @@ public:
         return impl_->get_move(board);
     }
 
+    void notifyRoundEnd(RoundResult result, std::pair<int, int> score, size_t round, const Board::BoardType &board) override {
+        impl_->notifyRoundEnd(result, score, round, board);
+    }
+
 private:
     std::unique_ptr<IPlayer> impl_;
 };

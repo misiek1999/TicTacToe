@@ -26,6 +26,13 @@ public:
         return  move;
     };
 
+    void notifyRoundEnd(RoundResult result, std::pair<int, int> score, size_t round, const Board::BoardType &board) override {
+        std::ignore = result;
+        std::ignore = score;
+        std::ignore = round;
+        std::ignore = board;
+    }
+
 private:
         // Create a random device and a Mersenne Twister generator seeded with it
         std::random_device rd_;

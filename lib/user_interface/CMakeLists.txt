@@ -12,5 +12,6 @@ target_include_directories(UserInterfaceLib PUBLIC ${INCLUDE_DIR})
 
 target_link_libraries(UserInterfaceLib PUBLIC PlayerLib
                                               GameManagerLib
+                                              ConsoleManagerLib
                                               BoardLib
                                               LogLib)

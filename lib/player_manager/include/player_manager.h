@@ -19,6 +19,11 @@ public:
     virtual std::shared_ptr<Player::IPlayer> getGuestClient() = 0;
     // get player type
     virtual TypeOfGuestPlayer getGuestPlayerType() = 0;
+
+    virtual void notifyPlayersRoundEnd(RoundResult result,
+                                      std::pair<int, int> score,
+                                      size_t round,
+                                      const Board::BoardType &board) = 0;
 };
 
 class PlayerManagerImpl;
@@ -41,6 +46,12 @@ public:
         return impl_->getGuestPlayerType();
     }
 
+    void notifyPlayersRoundEnd(RoundResult result,
+                              std::pair<int, int> score,
+                              size_t round,
+                              const Board::BoardType &board) override {
+        impl_->notifyPlayersRoundEnd(result, score, round, board);
+    }
 private:
     std::unique_ptr<IPlayerManager> impl_;
 };

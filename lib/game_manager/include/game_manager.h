@@ -19,8 +19,6 @@ public:
     virtual ~IGameManager() = default;
     virtual void startGame() = 0;
     virtual void stopGame() = 0;
-    virtual std::pair<int, int> getScore() const = 0;
-    virtual size_t getRound() const = 0;
 
 private:
 };
@@ -38,14 +36,6 @@ public:
 
     void stopGame() {
         impl_->stopGame();
-    }
-
-    std::pair<int, int> getScore() const {
-        return impl_->getScore();
-    }
-
-    size_t getRound() const {
-        return impl_->getRound();
     }
 
 private:

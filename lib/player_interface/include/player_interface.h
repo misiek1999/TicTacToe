@@ -17,6 +17,7 @@ public:
     IPlayer(BoardPlayerType player_type) : player_type_(player_type) {}
     virtual ~IPlayer() = default;
     virtual std::pair<int, int> get_move(const Board::Board &board) = 0;
+    virtual void notifyRoundEnd(RoundResult result, std::pair<int, int> score, size_t round, const Board::BoardType &board) = 0;
     BoardPlayerType get_player_type() { return player_type_; }
 private:
     BoardPlayerType player_type_;

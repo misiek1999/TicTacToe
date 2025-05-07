@@ -44,23 +44,16 @@ public:
         game_thread_stopped_ = true;
     }
 
-    std::pair<int, int> getScore() const override {
-        std::unique_lock<std::mutex> lock(game_thread_mutex_);
-        return game_engine_->getScore();
-    }
-
-    size_t getRound() const override {
-        return round_counter_;
-    }
-
 private:
     std::shared_ptr<PlayerManager::PlayerManager> player_manager_;
     std::unique_ptr<GameEngine::GameEngine> game_engine_;
 
     size_t round_counter_ = 0;
+    std::pair<int, int> last_score_ = {0, 0};
 
     std::thread game_thread_;
     std::atomic<bool> game_thread_stopped_ = false;
+    std::atomic<bool> is_game_finished = false;
 
     void createPlayerManager(std::shared_ptr<Player::IPlayer> host_player) {
         if (host_player != nullptr) {
@@ -95,15 +88,24 @@ private:
                 LOG_D("Game thread stopped");
                 break;
             }
-            std::unique_lock<std::mutex> lock(game_thread_mutex_);
             const auto game_process_resolutes = game_engine_->processGame();
             LOG_D("Game result: {}", static_cast<int>(game_process_resolutes));
             if (game_process_resolutes == GameEngine::GameEngineError::kGameFinished) {
-                LOG_D("Game finished. Resoluts: Host: {}, Guest: {}", game_engine_->getScore().first, game_engine_->getScore().second);
-                game_engine_->resetGame();
+                const auto game_score = game_engine_->getScore();
+                LOG_D("Game finished. Resoluts: Host: {}, Guest: {}", game_score.first, game_score.second);
                 ++round_counter_;
+                auto round_result = RoundResult::Draw;
+                if (game_score.first > last_score_.first) {
+                    round_result = RoundResult::HostWin;
+                } else if (game_score.second > last_score_.second) {
+                    round_result = RoundResult::GuestWin;
+                }
+                last_score_ = game_score;
+                player_manager_->notifyPlayersRoundEnd(round_result, game_score, round_counter_, game_engine_->getBoard());
+                game_engine_->resetGame();
             }
-            lock.unlock();
+            // Sleep for a short duration to avoid busy waiting
+            // TODO: change this mechanism to use condition variable
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }

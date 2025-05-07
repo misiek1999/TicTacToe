@@ -2,105 +2,183 @@
 #include "log.h"
 #include "game_manager.h"
 #include "player_host.h"
+#include "console_manager.h"
+#include "board.h"
 
-#include <atomic>
 #include <cstdlib>
 #include <iostream>
-
-#ifdef _WIN32
-#include <windows.h>
-#include <conio.h>
-#endif // _WIN32
+#include <mutex>
+#include <semaphore>
+#include <queue>
 
 namespace UI
 {
 
+enum class UIEventType {
+    PlayerMove,
+    RoundEnd,
+    GameEnd,
+    kInvalidEvent
+};
+
+constexpr size_t kMaxEventCount = 10U;
+
 class UserInterfaceImpl : public IUserInterface {
 public:
     UserInterfaceImpl() {
-        player_host_ = std::make_shared<Player::PlayerHost>(BoardPlayerType::X);
+        Player::UserInterfaceHostPlayerCallbacks callbacks = {
+            .notifyIsHostPlayerTurn = std::bind(&UserInterfaceImpl::listenForHostPlayerMove,
+                                                this, std::placeholders::_1),
+            .notifyRoundEnd = std::bind(&UserInterfaceImpl::listenForRoundEnd,
+                                        this, std::placeholders::_1,
+                                        std::placeholders::_2,
+                                        std::placeholders::_3,
+                                        std::placeholders::_4)
+        };
+        console_manager_ = std::make_unique<ConsoleManager>();
+        player_host_ = std::make_shared<Player::PlayerHost>(BoardPlayerType::X,
+                                                            std::move(callbacks));
         game_manager_ = std::make_unique<GameManager::GameManager>(player_host_);
         LOG_D("User interface created");
     }
 
     ~UserInterfaceImpl() {
         LOG_D("User interface destroyed");
+        player_host_->setPlayerMove(Board::kInvalidMove); // Notify that the player is no longer available
     }
 
     void startGame() override {
-        LOG_D("Starting game");
+        LOG_I("Starting game");
         game_manager_->startGame();
         this->processGame();
     }
 
     void stopGame() override {
         LOG_D("Stopping game");
-        is_game_stopped = true;
+        addNewEvent(UIEventType::GameEnd);
         game_manager_->stopGame();
     }
 
 
 private:
-    std::shared_ptr<Player::IPlayer> player_host_;
+    std::shared_ptr<Player::IHostPlayer> player_host_;
     std::unique_ptr<GameManager::GameManager> game_manager_;
+    std::unique_ptr<ConsoleManager::IConsoleManager> console_manager_;
 
-    std::atomic<bool> is_game_stopped = false;
+    // variables used for event handling
+    std::mutex player_move_mutex_;
+    std::mutex game_stat_update_mutex_;
+    std::mutex event_queue_mutex_;
+    std::queue<UIEventType> event_queue_;
+    std::counting_semaphore<kMaxEventCount> event_semaphore_{0};
 
-    void clearConsole() {
-        #ifdef _WIN32
-        system("cls");
-        #else
-        system("clear");
-        #endif
-    }
+    // copy of the game board
+    Board::BoardType game_board_ = {};
 
-    void pause() {
-        std::cout << "Press any key to continue...";
-        #ifdef _WIN32
-        _getch();
-        #else
-        std::cin.get();
-        #endif
-    }
+    //game stats
+    std::pair<int, int> game_score_ = {0, 0};
+    size_t game_round_ = 0;
+    RoundResult last_round_result_ = RoundResult::Draw;
 
-    void printBoard(Board::BoardType board) {
-        clearConsole();
-        for (const auto &row : board) {
-            for (const auto &cell : row) {
-                const auto cell_char = Board::convertBoardFieldToChar(cell);
-                std::cout << cell_char << " ";
-            }
-            std::cout << std::endl;
+    void listenForHostPlayerMove(const Board::Board &board) {
+        std::ignore = board; // Ignore the board for now
+        LOG_D("Host player turn notified");
+        {
+            std::unique_lock<std::mutex> lock(player_move_mutex_);
+            game_board_ = board.get_board(); // Copy the board state
         }
+        addNewEvent(UIEventType::PlayerMove); // Notify that the player can make a move
     }
 
-    void gameEndMessage() {
-        clearConsole();
-        std::cout << "\nDo you want to exit? ESC - Quit\n";
-
-        #ifdef _WIN32
-        if (GetAsyncKeyState(VK_ESCAPE)) {
-        #else
-        // Implement alternative escape detection for other platforms
-        #endif
-            std::cout << "Goodbye!\n";
-            is_game_stopped = true;
+    void listenForRoundEnd(RoundResult result, std::pair<int, int> score,
+                           size_t round, const Board::BoardType &board) {
+        LOG_D("Round end notified. Result: {}, Score: ({}, {}), Round: {}",
+              static_cast<int>(result), score.first, score.second, round);
+        {
+            std::scoped_lock<std::mutex> lock(game_stat_update_mutex_);
+            last_round_result_ = result;
+            game_score_ = score;
+            game_round_ = round;
         }
+        {
+            std::scoped_lock<std::mutex> lock(player_move_mutex_);
+            game_board_ = board; // Copy the board state
+        }
+        // Notify the UI to update the game stats
+        addNewEvent(UIEventType::RoundEnd);
+    }
 
-        std::cout << "Continuing the game!\n";
+    void getPlayerMove() {
+        try {
+            auto player_move = console_manager_->getPlayerMove(getGameBoard());
+            player_host_->setPlayerMove(player_move); // Replace with actual move
+        } catch (const std::exception &e) {
+            LOG_I("Catched exception: {}", e.what());
+            stopGame(); // Stop the game on error
+        }
     }
 
     void processGame() {
-        while (!is_game_stopped) {
-            clearConsole();
-
-            const auto score = game_manager_->getScore();
-            const auto round = game_manager_->getRound();
-            std::cout << "Host: " << score.first << " Guest: " << score.second << "Round: " << round << std::endl;
-
-            std::this_thread::sleep_for(std::chrono::seconds(120));
-            game_manager_->stopGame();
+        auto game_finished = false;
+        while (!game_finished) {
+            // Clear console before printing the board and score
+            console_manager_->clearConsole();
+            {
+                std::scoped_lock<std::mutex> lock(game_stat_update_mutex_);
+                // Print game stats
+                console_manager_->printGameStats(game_score_.first,
+                                                 game_score_.second,
+                                                 game_round_);
+            }
+            const auto event = getNextEvent();
+            switch (event) {
+                case UIEventType::PlayerMove: // Get player move
+                    getPlayerMove();
+                    break;
+                case UIEventType::RoundEnd:  // Print game stats
+                    console_manager_->printRoundEndMessage(getGameBoard(),
+                                                           last_round_result_,
+                                                           game_round_);
+                    break;
+                case UIEventType::GameEnd:
+                    console_manager_->gameEndMessage(); // Print game end message
+                    game_finished = true; // Set game finished flag
+                    break;
+                default:
+                    LOG_E("Invalid event type: {}", static_cast<int>(event));
+                    break;
+            }
         }
+        LOG_I("Game stopped, exiting UI loop");
+        game_manager_->stopGame();
+    }
+
+    void addNewEvent(UIEventType event) {
+        std::scoped_lock<std::mutex> lock(event_queue_mutex_);
+        if (event_queue_.size() < kMaxEventCount) {
+            event_queue_.push(event);
+            event_semaphore_.release(); // Notify that a new event is available
+        } else {
+            LOG_E("Event queue is full, dropping event");
+        }
+    }
+
+    UIEventType getNextEvent() {
+        event_semaphore_.acquire(); // Wait for an event to be available
+        std::scoped_lock<std::mutex> lock(event_queue_mutex_);
+        if (!event_queue_.empty()) {
+            auto event = event_queue_.front();
+            event_queue_.pop();
+            return event;
+        } else {
+            LOG_E("Event queue is empty, returning default event");
+            return UIEventType::kInvalidEvent; // Return default event if queue is empty
+        }
+    }
+
+    Board::BoardType getGameBoard() {
+        std::scoped_lock<std::mutex> lock(player_move_mutex_);
+        return game_board_;
     }
 };
 
