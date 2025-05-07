@@ -1,7 +1,8 @@
 #include "board.h"
+#include "log.h"
 #include <ranges>
 #include <algorithm>
-#include <iostream>
+#include <ostream>
 
 namespace Board {
 
@@ -71,22 +72,24 @@ public:
     }
 
     void print_board() const {
+        std::stringstream  board_str = {};
         for (const auto& row : board_) {
             for (const auto& field : row) {
                 switch (field) {
                 case BoardField::EMPTY:
-                    std::cout << " ";
+                    board_str << " ";
                     break;
                 case BoardField::X:
-                    std::cout << "X";
+                    board_str << "X";
                     break;
                 case BoardField::O:
-                    std::cout << "O";
+                    board_str << "O";
                     break;
                 }
             }
-            std::cout << std::endl;
+            board_str << std::endl;
         }
+        LOG_D("{}", board_str.str());
     }
 
 private:

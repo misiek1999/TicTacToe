@@ -10,4 +10,4 @@ add_library(BoardLib STATIC ${SOURCES} ${HEADERS})
 set(INCLUDE_DIR include)
 target_include_directories(BoardLib PUBLIC ${INCLUDE_DIR})
 
-target_link_libraries(BoardLib PUBLIC PlayerTypeLib)
+target_link_libraries(BoardLib PUBLIC PlayerTypeLib LogLib)
