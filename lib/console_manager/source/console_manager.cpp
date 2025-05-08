@@ -1,5 +1,7 @@
 #include "console_manager.h"
 
+#include <log.h>
+
 #include <iostream>
 #include <string_view>
 #include <algorithm>
@@ -19,11 +21,11 @@ constexpr char kExtendedKeyArrowRight = 77;
 class ConsoleManagerImpl : public IConsoleManager {
 public:
     ConsoleManagerImpl() {
-        std::cout << "Console Manager created\n";
+        LOG_D("Console Manager created\n");
     }
 
     ~ConsoleManagerImpl() override {
-        std::cout << "Console Manager destroyed\n";
+        LOG_D("Console Manager destroyed\n");
     }
 
     void clearConsole() override {
