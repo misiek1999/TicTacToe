@@ -1,8 +1,8 @@
 #pragma once
 
-#include <utility>
-
 #include "player_interface.h"
+
+#include <utility>
 
 namespace Player {
 
