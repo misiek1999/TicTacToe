@@ -2,6 +2,8 @@
 
 #include "player_interface.h"
 
+#include "bot_factory.h"
+
 #include <utility>
 
 namespace Player {
@@ -10,7 +12,7 @@ class PlayerBotImpl;
 
 class PlayerBot : public IPlayer {
 public:
-    explicit PlayerBot(BoardPlayerType player_type);
+    explicit PlayerBot(const BoardPlayerType player_type, std::unique_ptr<IBotFactory> factory);
     ~PlayerBot() = default;
 
     std::pair<int, int> get_move(const Board::Board &board) override {

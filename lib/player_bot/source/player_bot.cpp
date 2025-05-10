@@ -1,28 +1,23 @@
 #include "player_bot.h"
 #include "player_interface.h"
-
-#include <random>
-
+#include "bot_factory.h"
 
 namespace Player
 {
 
-constexpr size_t kMaxGeneratedNumber= 2U;
-constexpr size_t kMinGeneratedNumber= 0U;
-
 class PlayerBotImpl : public IPlayer
 {
 public:
-    explicit PlayerBotImpl(BoardPlayerType player_type) :
-            IPlayer(player_type),
-            gen_(rd_()) {
-        distrib = std::uniform_int_distribution<>(kMinGeneratedNumber, kMaxGeneratedNumber);
+    explicit PlayerBotImpl(const BoardPlayerType player_type, std::unique_ptr<IBotFactory> factory) :
+            IPlayer(player_type){
+        // Initialize the bot algorithm
+        bot_algorithm_ = factory->createBot();
     }
 
     std::pair<int, int> get_move(const Board::Board &board) override {
         std::ignore = board;
-        const auto move = std::make_pair<int,int>(distrib(gen_), distrib(gen_));
-        LOG_D("Player {} move: row: {}, col: {}", static_cast<int>(get_player_type()), move.first, move.second);
+        const auto move = bot_algorithm_->getMove(board.get_board());
+        LOG_D("Bot player {} move: row: {}, col: {}", static_cast<int>(get_player_type()), move.first, move.second);
         return  move;
     };
 
@@ -34,15 +29,12 @@ public:
     }
 
 private:
-        // Create a random device and a Mersenne Twister generator seeded with it
-        std::random_device rd_;
-        std::mt19937 gen_;
-        std::uniform_int_distribution<> distrib;
+    std::unique_ptr<IBot> bot_algorithm_;
 };
 
-PlayerBot::PlayerBot(BoardPlayerType player_type):
+PlayerBot::PlayerBot(const BoardPlayerType player_type, std::unique_ptr<IBotFactory> factory):
     IPlayer(player_type),
-    impl_(std::make_unique<PlayerBotImpl>(player_type)) {
+    impl_(std::make_unique<PlayerBotImpl>(player_type, std::move(factory))) {
 }
 
 } // namespace Player

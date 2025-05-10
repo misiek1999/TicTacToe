@@ -1,6 +1,7 @@
 #include "player_manager.h"
 #include "log.h"
 #include "player_bot.h"
+#include "bot_factory.h"
 #include <unordered_map>
 #include <exception>
 
@@ -24,7 +25,11 @@ public:
     explicit PlayerManagerImpl(TypeOfGuestPlayer type):
             type_(type) {
         LOG_D("Selected type of guest player: {}", static_cast<int>(type));
-        host_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::X);
+        // Create bot factory
+        std::unique_ptr<IBotFactory> bot_factory_ = std::make_unique<BotFactoryRandom>();
+        // Create host player
+        host_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::X,
+                                                           std::move(bot_factory_));
         LOG_V("Host player created");
         createGuestPlayer(type);
     }
@@ -58,8 +63,11 @@ private:
 
     void createGuestPlayer(TypeOfGuestPlayer type) {
         std::ignore = type;
+        // Create bot factory
+        std::unique_ptr<IBotFactory> bot_factory_ = std::make_unique<BotFactoryAlgorithm>();
         // TODO: Implement player creation based on type
-        guest_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::O);
+        guest_client_ = std::make_shared<Player::PlayerBot>(BoardPlayerType::O,
+                                                            std::move(bot_factory_));
         LOG_V("Guest player created, type: {}", static_cast<int>(type_));
     }
 };
