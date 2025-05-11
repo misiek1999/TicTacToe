@@ -77,7 +77,7 @@ private:
 
     //game stats
     std::pair<int, int> game_score_ = {0, 0};
-    size_t game_round_ = 0;
+    size_t game_round_ = 1;
     RoundResult last_round_result_ = RoundResult::Draw;
 
     void listenForHostPlayerMove(const Board::Board &board) {

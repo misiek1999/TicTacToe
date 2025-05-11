@@ -48,7 +48,7 @@ private:
     std::shared_ptr<PlayerManager::PlayerManager> player_manager_;
     std::unique_ptr<GameEngine::GameEngine> game_engine_;
 
-    size_t round_counter_ = 0;
+    size_t round_counter_ = 1;
     std::pair<int, int> last_score_ = {0, 0};
 
     std::thread game_thread_;
