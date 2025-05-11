@@ -92,10 +92,12 @@ private:
     std::pair<std::shared_ptr<Player::IPlayer>, BoardPlayerType> getCurrentPlayer() {
         if (is_host_turn_) {
             LOG_V("Host turn");
-            return {playerManagerPtr_->getHostClient(), BoardPlayerType::O};
+            return {playerManagerPtr_->getHostClient(),
+                    playerManagerPtr_->getHostClient()->get_player_type()};
         } else {
             LOG_V("Guest turn");
-            return {playerManagerPtr_->getGuestClient(), BoardPlayerType::X};
+            return {playerManagerPtr_->getGuestClient(),
+                    playerManagerPtr_->getGuestClient()->get_player_type()};
         }
     }
 };
