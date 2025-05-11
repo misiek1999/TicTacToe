@@ -63,7 +63,7 @@ public:
         }
         board_[row][col] = board_player;
         print_board();
-        return true;    // This patern was used for fun, in that case customer error code struct will be better
+        return is_winner(player);    // This patern was used for fun, in that case customer error code struct will be better
     }
 
     void reset() override {
