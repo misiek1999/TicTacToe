@@ -22,6 +22,7 @@ public:
 
         LOG_V("Next game loop");
         auto [current_player, player_type] = this->getCurrentPlayer();
+        const auto [host_player, host_player_type] = getHostPlayer();
 
         auto board = Board::Board(board_.get_board());
         const auto [row, col] = current_player->get_move(std::move(board));
@@ -35,10 +36,10 @@ public:
         if (move_result.has_value()) {
             if (board_.is_winner(player_type)) {
                 LOG_I("Player {} won", static_cast<int>(player_type));
-                if (player_type == BoardPlayerType::X) {
-                    guest_player_score_++;
-                } else {
+                if (player_type == host_player_type) {
                     host_player_score_++;
+                } else {
+                    guest_player_score_++;
                 }
                 is_game_finished_ = true;
                 return_code = GameEngineError::kGameFinished;
@@ -89,15 +90,23 @@ private:
     bool is_host_turn_{true};
     bool is_game_finished_{false};
 
+    std::pair<std::shared_ptr<Player::IPlayer>, BoardPlayerType> getHostPlayer() {
+        return {playerManagerPtr_->getHostClient(),
+                playerManagerPtr_->getHostClient()->get_player_type()};
+    }
+
+    std::pair<std::shared_ptr<Player::IPlayer>, BoardPlayerType> getGuestPlayer() {
+        return {playerManagerPtr_->getGuestClient(),
+                playerManagerPtr_->getGuestClient()->get_player_type()};
+    }
+
     std::pair<std::shared_ptr<Player::IPlayer>, BoardPlayerType> getCurrentPlayer() {
         if (is_host_turn_) {
             LOG_V("Host turn");
-            return {playerManagerPtr_->getHostClient(),
-                    playerManagerPtr_->getHostClient()->get_player_type()};
+            return getHostPlayer();
         } else {
             LOG_V("Guest turn");
-            return {playerManagerPtr_->getGuestClient(),
-                    playerManagerPtr_->getGuestClient()->get_player_type()};
+            return getGuestPlayer();
         }
     }
 };
