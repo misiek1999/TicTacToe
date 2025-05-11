@@ -70,9 +70,9 @@ public:
 
     void resetGame() override {
         LOG_I("Resetting game engine");
-        board_.reset();
-        is_host_turn_ = true;
-        is_game_finished_ = false;
+        resetBoard();
+        is_host_start_round_ = !is_host_start_round_;
+        is_host_turn_ = is_host_start_round_;
     }
 
     void resetBoard() override {
@@ -89,6 +89,7 @@ private:
     size_t guest_player_score_{0};
     bool is_host_turn_{true};
     bool is_game_finished_{false};
+    bool is_host_start_round_{true};
 
     std::pair<std::shared_ptr<Player::IPlayer>, BoardPlayerType> getHostPlayer() {
         return {playerManagerPtr_->getHostClient(),
