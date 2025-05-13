@@ -159,6 +159,22 @@ public:
 
             // Process escape sequences for arrow keys
             if (input == kEscKey) { // ESC character
+                // Check for immediate follow-up characters (non-blocking)
+#ifdef _WIN32
+                if (!_kbhit()) {  // Windows: check if key is available
+#else
+                // Unix: check input availability with select()
+                struct timeval tv = {0, 0};
+                fd_set fds;
+                FD_ZERO(&fds);
+                FD_SET(STDIN_FILENO, &fds);
+                if (select(1, &fds, NULL, NULL, &tv) == 0) {  // No data available
+#endif
+                    // Handle standalone ESC immediately
+                    std::cout << "Game interrupted by user. Exiting...\n";
+                    throw std::runtime_error("Game interrupted by user.");
+                }
+
                 int next = getKey();
                 if (next == '[') { // CSI sequence
                     int code = getKey();
