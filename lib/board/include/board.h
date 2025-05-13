@@ -52,7 +52,7 @@ namespace Board {
     // Constant for invalid move
     constexpr std::pair<int, int> kInvalidMove = {-1, -1};
 
-    // Type of the board
+    // Type of the board 1. ROW, 2. COL
     using BoardType = std::array<std::array<BoardField, kBoardSize>, kBoardSize>;
 
     enum class BoardError {
