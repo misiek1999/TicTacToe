@@ -138,7 +138,7 @@ private:
                 case UIEventType::RoundEnd:  // Print game stats
                     console_manager_->printRoundEndMessage(getGameBoard(),
                                                            last_round_result_,
-                                                           game_round_);
+                                                           game_round_ - 1);    // Decrement round for display
                     break;
                 case UIEventType::GameEnd:
                     console_manager_->gameEndMessage(); // Print game end message
