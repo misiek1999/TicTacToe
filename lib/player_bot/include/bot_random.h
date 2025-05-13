@@ -10,7 +10,8 @@ class BotRandom : public IBot {
     public:
         BotRandom();
         virtual ~BotRandom() = default;
-        std::pair<int, int> getMove(const Board::BoardType& board) override;
+        std::pair<int, int> getMove(const Board::BoardType& board,
+                                    BoardPlayerType bot_field) override;
     private:
         // Create a random device and a Mersenne Twister generator seeded with it
         std::random_device rd_;

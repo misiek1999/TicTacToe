@@ -8,7 +8,9 @@ BotRandom::BotRandom():
     distrib = std::uniform_int_distribution<>(kMinGeneratedNumber, kMaxGeneratedNumber);
 }
 
-std::pair<int, int> BotRandom::getMove(const Board::BoardType& board) {
+std::pair<int, int> BotRandom::getMove(const Board::BoardType& board,
+                                       BoardPlayerType bot_field) {
     std::ignore = board;
+    std::ignore = bot_field;
     return std::make_pair<int,int>(distrib(gen_), distrib(gen_));
 }

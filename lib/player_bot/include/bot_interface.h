@@ -5,5 +5,6 @@
 class IBot {
 public:
     virtual ~IBot() = default;
-    virtual std::pair<int, int> getMove(const Board::BoardType& board) = 0;
+    virtual std::pair<int, int> getMove(const Board::BoardType& board,
+                                        BoardPlayerType bot_field) = 0;
 };

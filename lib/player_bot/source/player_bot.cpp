@@ -16,8 +16,9 @@ public:
 
     std::pair<int, int> get_move(const Board::Board &board) override {
         std::ignore = board;
-        const auto move = bot_algorithm_->getMove(board.get_board());
-        LOG_D("Bot player {} move: row: {}, col: {}", static_cast<int>(get_player_type()), move.first, move.second);
+        const auto player_type = get_player_type();
+        const auto move = bot_algorithm_->getMove(board.get_board(), player_type);
+        LOG_D("Bot player {} move: row: {}, col: {}", static_cast<int>(player_type), move.first, move.second);
         return  move;
     };
 
