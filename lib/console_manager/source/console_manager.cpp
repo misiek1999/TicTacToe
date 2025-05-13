@@ -6,9 +6,14 @@
 #include <string_view>
 #include <algorithm>
 
-// TODO: Remove windows specific includes and use cross-platform alternatives
+// Platform-specific includes for input handling
+#ifdef _WIN32
 #include <conio.h>
-#include <windows.h>
+#else
+#include <termios.h>
+#include <unistd.h>
+#include <stdio.h>
+#endif
 
 // #define DISABLE_CONSOLE_CLEAR
 
@@ -28,23 +33,32 @@ public:
         LOG_D("Console Manager destroyed\n");
     }
 
+    int getKey() {
+#ifdef _WIN32
+        return _getch();
+#else
+        struct termios oldt, newt;
+        int ch;
+        tcgetattr(STDIN_FILENO, &oldt);
+        newt = oldt;
+        newt.c_lflag &= ~(ICANON | ECHO);
+        tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+        ch = getchar();
+        tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+        return ch;
+#endif
+    }
+
     void clearConsole() override {
-        #ifndef DISABLE_CONSOLE_CLEAR
-        #ifdef _WIN32
-        system("cls");
-        #else
-        system("clear");
-        #endif
-        #endif
+    #ifndef DISABLE_CONSOLE_CLEAR
+        // ANSI escape code for clearing screen
+        std::cout << "\033[2J\033[1;1H";
+    #endif
     }
 
     void pauseConsole() override {
         std::cout << "Press any key to continue..." << std::endl;
-        #ifdef _WIN32
-        std::ignore = _getch();
-        #else
-        std::cin.get();
-        #endif
+        getKey();
     }
 
     void printBoard(const Board::BoardType& board) override {
@@ -144,10 +158,10 @@ public:
             SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor_pos);
 
             // Handle input
-            const int input = _getch();
+            const int input = getKey();
             int extended_input = {};
             if (input == 0 || input == 0xE0) {
-                extended_input =  _getch(); // Handle extended keys
+                extended_input =  getKey(); // Handle extended keys
             }
 
             SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), message_pos);
