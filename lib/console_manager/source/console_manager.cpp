@@ -126,12 +126,9 @@ public:
         constexpr int kCellHeight = 2;
         constexpr char kPlayerSymbol = 'X';
         const int kBoardSize = static_cast<int>(board.size());
-        using Coordinates = COORD;
 
         int current_col = 0;
         int current_row = 0;
-        Coordinates cursor_pos{};
-        Coordinates message_pos{0, static_cast<SHORT>(kCellHeight * kBoardSize + 2)};
 
         printBoard(board);
         std::cout << "\nInstructions: Use W/A/S/D to move, Enter to confirm\n"
@@ -151,20 +148,36 @@ public:
         };
 
         while (true) {
-            // Calculate cursor position
-            cursor_pos.X = static_cast<SHORT>(current_col * kCellWidth + 1);
-            cursor_pos.Y = static_cast<SHORT>(current_row * kCellHeight + 1);
+            // Calculate cursor position using ANSI escape codes
+            int cursor_x = current_col * kCellWidth + 1;
+            int cursor_y = current_row * kCellHeight + 1;
+            std::cout << "\033[" << (cursor_y + 1) << ";" << (cursor_x + 1) << "H" << std::flush;
 
-            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor_pos);
+            // Handle input with cross-platform key detection
+            int input = getKey();
+            int extended_input = 0;
 
-            // Handle input
-            const int input = getKey();
-            int extended_input = {};
-            if (input == 0 || input == 0xE0) {
-                extended_input =  getKey(); // Handle extended keys
+            // Process escape sequences for arrow keys
+            if (input == 27) { // ESC character
+                int next = getKey();
+                if (next == '[') { // CSI sequence
+                    int code = getKey();
+                    switch (code) {
+                        case 'A': extended_input = kExtendedKeyArrowUp; break;
+                        case 'B': extended_input = kExtendedKeyArrowDown; break;
+                        case 'C': extended_input = kExtendedKeyArrowRight; break;
+                        case 'D': extended_input = kExtendedKeyArrowLeft; break;
+                        default: break;
+                    }
+                    input = 0xE0; // Simulate Windows extended key
+                }
+            } else if (input == 0x00 || input == 0xE0) { // Extended key prefix
+                extended_input = getKey();
             }
 
-            SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), message_pos);
+            // Calculate message position
+            int message_y = kCellHeight * kBoardSize + 2;
+            std::cout << "\033[" << (message_y + 1) << ";1H" << std::flush;
 
             switch (std::tolower(input)) {
                 case kEscKey: // ESC key
@@ -172,6 +185,7 @@ public:
                     std::cout << "Game interrupted by user. Exiting...\n";
                     throw std::runtime_error("Game interrupted by user.");
                 }
+                [[fallthrough]];
                 case 0x00: // Extended key
                 case 0xE0: // Extended key
                     switch (extended_input) {
@@ -206,12 +220,9 @@ public:
                     break;
                 case '\r': { // Enter key
                     if (board_copy.is_valid_move(current_row, current_col)) {
-                        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cursor_pos);
-                        std::cout << kPlayerSymbol;
-
-                        // Clear message area
-                        SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), message_pos);
-                        std::cout << "Move confirmed.                              ";
+                        std::cout << "\033[" << (cursor_y + 1) << ";" << (cursor_x + 1)
+                                  << "H" << kPlayerSymbol << std::flush;
+                        std::cout << "\033[" << (message_y + 1) << ";1H" << "Move confirmed.                              " << std::flush;
                         return std::make_pair(current_row, current_col);
                     }
                     std::cout << "Position occupied! Choose another location.    ";
