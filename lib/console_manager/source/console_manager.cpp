@@ -218,7 +218,8 @@ public:
                 case 'd':
                     move_right(current_col, kBoardSize);
                     break;
-                case '\r': { // Enter key
+                    case '\n':  // Linux support
+                    case '\r': { // Enter key
                     if (board_copy.is_valid_move(current_row, current_col)) {
                         std::cout << "\033[" << (cursor_y + 1) << ";" << (cursor_x + 1)
                                   << "H" << kPlayerSymbol << std::flush;
