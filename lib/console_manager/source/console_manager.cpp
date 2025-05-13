@@ -158,7 +158,7 @@ public:
             int extended_input = 0;
 
             // Process escape sequences for arrow keys
-            if (input == 27) { // ESC character
+            if (input == kEscKey) { // ESC character
                 int next = getKey();
                 if (next == '[') { // CSI sequence
                     int code = getKey();
