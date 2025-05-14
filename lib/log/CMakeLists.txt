@@ -7,7 +7,7 @@ include(FetchContent)
 FetchContent_Declare(
   spdlog
   GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG v1.15.1
+  GIT_TAG f355b3d58f7067eee1706ff3c801c2361011f3d5    # Commit hash for v1.15.1
 )
 
 # FetchContent_MakeAvailable will download and add spdlog as a dependency.
